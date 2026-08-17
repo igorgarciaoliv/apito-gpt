@@ -1,0 +1,25 @@
+# Segredos — nunca versionar
+.env
+*.key
+
+# Índices gerados: são derivados dos livros e do modelo de embedding, e o app
+# os reconstrói sozinho quando faltam ou quando a configuração muda.
+index.faiss
+meta.pkl
+bm25.pkl
+index_data/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Scripts locais de teste e deploy
+_teste*.py
+_deploy.py
+
+# Sistema
+.DS_Store
+Thumbs.db

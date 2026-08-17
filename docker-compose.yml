@@ -1,0 +1,30 @@
+services:
+  apito-gpt:
+    build: .
+    image: igorgarciaoliveira/apito-gpt:latest
+    container_name: apito-gpt
+    ports:
+      - "8501:8501"   # Streamlit UI
+      - "8000:8000"   # FastAPI REST
+    environment:
+      # A chave fica fora da imagem: a imagem é pública e qualquer pessoa que
+      # der pull leria uma chave embutida nela.
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      # Precisa apontar para o volume abaixo, senão o índice é gravado na
+      # camada do container e reconstruído a cada recriação.
+      - APITO_INDEX_DIR=/app/index_data
+    volumes:
+      # Persiste índice FAISS + BM25 entre recriações do container
+      - apito_indices:/app/index_data
+    restart: unless-stopped
+    healthcheck:
+      # start_period cobre a primeira indexação, que leva minutos; sem ela o
+      # container seria marcado unhealthy antes de terminar de subir.
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 600s
+
+volumes:
+  apito_indices:
