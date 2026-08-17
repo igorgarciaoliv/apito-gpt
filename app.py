@@ -55,12 +55,26 @@ OPENAI_API_KEY = OPENAI_API_KEY_EMBUTIDA or os.environ.get("OPENAI_API_KEY", "")
 EMBED_MODEL_NAME = "intfloat/multilingual-e5-large"
 CROSS_ENCODER_NAME = "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1"
 
-# Modelos de ML (carregados uma vez no startup)
 print(f"Carregando embeddings ({EMBED_MODEL_NAME})...")
-EMBED_MODEL   = SentenceTransformer(EMBED_MODEL_NAME)
-print(f"Carregando cross-encoder ({CROSS_ENCODER_NAME})...")
-CROSS_ENCODER = CrossEncoder(CROSS_ENCODER_NAME, max_length=512)
-print("Modelos prontos.")
+EMBED_MODEL = SentenceTransformer(EMBED_MODEL_NAME)
+print("Modelo de embedding pronto.")
+
+_CROSS_ENCODER = None
+
+def cross_encoder():
+    """
+    Carrega o cross-encoder sob demanda.
+
+    A indexação usa apenas o modelo de embedding, mas é a etapa de maior pico
+    de memória. Manter o reranker fora dela reduz esse pico em algumas centenas
+    de MB e evita que o container morra em máquinas com pouca RAM — o custo é
+    um atraso único na primeira consulta.
+    """
+    global _CROSS_ENCODER
+    if _CROSS_ENCODER is None:
+        print(f"Carregando cross-encoder ({CROSS_ENCODER_NAME})...")
+        _CROSS_ENCODER = CrossEncoder(CROSS_ENCODER_NAME, max_length=512)
+    return _CROSS_ENCODER
 
 # Parâmetros de chunking
 MAX_CHUNK_CHARS = 1200
@@ -103,8 +117,11 @@ def tokenizar(texto):
     return re.findall(r"\w+", texto.lower())
 
 def gerar_embeddings(textos, tipo="passage"):
+    # Lote pequeno de propósito: o ganho de velocidade de lotes maiores não
+    # compensa o pico de memória durante a indexação, que é onde o container
+    # chega perto do limite em máquinas modestas.
     textos_fmt = [f"{tipo}: {t}" for t in textos]
-    emb = EMBED_MODEL.encode(textos_fmt, show_progress_bar=False)
+    emb = EMBED_MODEL.encode(textos_fmt, show_progress_bar=False, batch_size=8)
     emb = np.array(emb).astype("float32")
     faiss.normalize_L2(emb)
     return emb
@@ -478,7 +495,7 @@ def rerankear_e_filtrar(pergunta_original, candidatos):
 
     pares = [(pergunta_original, meta[idx]["conteudo_original"])
              for idx, *_ in candidatos]
-    scores = CROSS_ENCODER.predict(pares, show_progress_bar=False)
+    scores = cross_encoder().predict(pares, show_progress_bar=False)
 
     pontuados = []
     for (idx, combined, f_sc, b_sc), ce_score in zip(candidatos, scores):
