@@ -62,4 +62,7 @@ EXPOSE 8501 8000
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
-CMD ["/start.sh"]
+# Interpretador explícito em vez de depender do shebang: invocado direto como
+# PID 1, o script encerrava durante o carregamento dos modelos, enquanto
+# `bash /start.sh` completa a inicialização de forma consistente.
+CMD ["bash", "/start.sh"]
