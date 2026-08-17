@@ -54,7 +54,7 @@ pergunta
    ├─ expansão por glossário      "carrinho por trás" → "jogo brusco grave"
    ├─ decomposição multi-regra    separa perguntas que envolvem 2+ Regras
    │
-   ├─ busca híbrida (RRF)         vetorial (e5-large) + BM25
+   ├─ busca híbrida (RRF)         vetorial (e5-base) + BM25
    ├─ reranking                   cross-encoder reordena por pertinência
    ├─ filtro de relevância        corte adaptativo, nunca devolve vazio
    │

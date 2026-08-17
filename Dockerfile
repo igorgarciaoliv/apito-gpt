@@ -28,7 +28,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN python - <<'EOF'
 from sentence_transformers import SentenceTransformer, CrossEncoder
 print("Baixando embedding model...")
-SentenceTransformer("intfloat/multilingual-e5-large")
+SentenceTransformer("intfloat/multilingual-e5-base")
 print("Baixando cross-encoder...")
 CrossEncoder("cross-encoder/mmarco-mMiniLMv2-L12-H384-v1", max_length=512)
 print("Modelos baixados.")

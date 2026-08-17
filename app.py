@@ -52,7 +52,12 @@ MODEL_AUXILIAR = "gpt-4o-mini"
 OPENAI_API_KEY_EMBUTIDA = ""
 OPENAI_API_KEY = OPENAI_API_KEY_EMBUTIDA or os.environ.get("OPENAI_API_KEY", "")
 
-EMBED_MODEL_NAME = "intfloat/multilingual-e5-large"
+# e5-base, e não a variante large: com o cross-encoder reordenando depois, o
+# que a busca vetorial precisa entregar é recall dentro dos 30 candidatos, não
+# precisão fina — a precisão vem do reranking. Em troca, o modelo ocupa cerca
+# de metade da memória, o que decide entre o container subir ou morrer durante
+# a indexação em máquinas com ~4 GB.
+EMBED_MODEL_NAME = "intfloat/multilingual-e5-base"
 CROSS_ENCODER_NAME = "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1"
 
 print(f"Carregando embeddings ({EMBED_MODEL_NAME})...")

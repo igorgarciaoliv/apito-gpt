@@ -137,7 +137,7 @@ verificação de fundamentação e, em perguntas multi-regra, decomposição.
 Para reduzir custo, troque `MODEL_NAME` para `gpt-4o-mini` em `app.py` —
 a resposta fica menos precisa em regras que dependem de gradação de gravidade.
 
-Embeddings e reranking rodam localmente (`multilingual-e5-large` e
+Embeddings e reranking rodam localmente (`multilingual-e5-base` e
 `mmarco-mMiniLMv2`), sem custo por consulta.
 
 ## 🐛 Solução de problemas
