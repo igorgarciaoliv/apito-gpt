@@ -379,13 +379,21 @@ _meta_cache     = None
 _bm25_cache     = None
 _bm25txt_cache  = None
 
+# Incrementar sempre que a LÓGICA de parse_md/dividir_texto_grande mudar —
+# os parâmetros numéricos e o conteúdo dos livros já entram na assinatura
+# abaixo, mas uma mudança de comportamento do parser com os mesmos parâmetros
+# e o mesmo texto-fonte não alteraria o hash, e um volume persistente
+# continuaria servindo o índice antigo com o bug já corrigido no código.
+PARSER_VERSION = 2
+
 def _assinatura_corpus():
     """
-    Identifica a configuração que gerou o índice: modelo de embedding, regras
-    de chunking e conteúdo dos livros. Qualquer mudança nesses itens invalida
-    os vetores existentes.
+    Identifica a configuração que gerou o índice: versão do parser, modelo de
+    embedding, regras de chunking e conteúdo dos livros. Qualquer mudança
+    nesses itens invalida os vetores existentes.
     """
     h = hashlib.sha256()
+    h.update(f"parser={PARSER_VERSION}".encode())
     h.update(EMBED_MODEL_NAME.encode())
     h.update(f"{MAX_CHUNK_CHARS}/{OVERLAP_CHARS}/{MIN_CHUNK_CHARS}".encode())
     for arquivo in sorted(os.listdir(PASTA_LIVROS)):
