@@ -1,3 +1,9 @@
+# CPU-only: sem essa linha o pip resolve o torch com bibliotecas CUDA
+# (alguns GB a mais), que o Streamlit Community Cloud nem usa e cujo
+# download sozinho pode estourar o tempo/limite de build da plataforma.
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+
 faiss-cpu>=1.7.4
 sentence-transformers>=2.2.2
 rank-bm25>=0.2.2

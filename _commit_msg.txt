@@ -1,0 +1,10 @@
+Prepara o repositorio para deploy no Streamlit Community Cloud
+
+A plataforma nao usa o Dockerfile -- so instala requirements.txt e
+roda streamlit_app.py direto. Dois ajustes:
+
+- torch fixado ao indice CPU-only via --extra-index-url. Sem isso o
+  pip resolveria a build com CUDA, que so nesse pacote passa de 2GB e
+  pode estourar o tempo de build da plataforma.
+- .streamlit/config.toml traz o tema escuro que antes so existia
+  dentro da imagem Docker (gerado via heredoc no Dockerfile).
