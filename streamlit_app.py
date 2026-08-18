@@ -260,8 +260,12 @@ totalmente fundamentadas no material. Consulte a base legal para confirmar.
 
         st.markdown("**Chunks utilizados:**")
         for c in resultado_busca.get("chunks", []):
+            # Seções de apoio (Cenários Multi-Regra) não têm "regra" própria —
+            # cai para "secao" em vez de mostrar em branco, senão o rótulo
+            # some justamente nos chunks mais úteis para casos combinados.
+            rotulo = c.get("regra") or c.get("secao") or "?"
             st.markdown(
-                f"- `{c.get('regra','?')} | {c.get('subsecao','?')[:60]}` "
+                f"- `{rotulo} | {c.get('subsecao','?')[:60]}` "
                 f"— CE: `{c.get('ce_score','?')}` · Híbrido: `{c.get('score','?')}`"
             )
 
