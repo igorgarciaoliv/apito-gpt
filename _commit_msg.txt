@@ -1,0 +1,14 @@
+Exclui o preambulo do documento da indexacao
+
+O texto de capa (titulo, editora IFAB, adocao CBF, data de vigencia)
+ficava com regra e subsecao vazios, virando um chunk citavel sem
+rotulo -- visivel no painel de detalhes tecnicos como " | (parte 1/3)".
+Em uma consulta real ele entrou no contexto ao lado de um trecho
+irrelevante da Regra 11, e o verificador de fundamentacao reprovou uma
+resposta que antes passava.
+
+O H1 do documento e o unico nivel 1 do arquivo; as 17 Regras usam
+todas nivel 2. Corrigido mantendo a secao como sentinela ate o
+primeiro cabecalho de nivel 2, que e quando o conteudo normativo
+comeca. Glossario e Cenarios Multi-Regra, que tambem ficam sem
+regra atribuida, continuam indexados normalmente.

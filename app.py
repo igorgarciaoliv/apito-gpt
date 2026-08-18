@@ -184,14 +184,20 @@ def dividir_texto_grande(texto, max_chars=MAX_CHUNK_CHARS, overlap=OVERLAP_CHARS
 
 # ── PARSER + INDEXAÇÃO ────────────────────────────────────────────────
 
+_FRONTMATTER = "__frontmatter__"
+
 def parse_md(texto):
     linhas = texto.split("\n")
-    secao, subsecao, regra_atual = "Geral", "", ""
+    # Sentinela: tudo antes do primeiro cabeçalho (título, editora, data de
+    # vigência) é metadado do documento, não conteúdo normativo. Sem essa
+    # marca, esse texto virava um chunk indexável com regra/subseção vazios —
+    # citável como base legal e sem rótulo nenhum.
+    secao, subsecao, regra_atual = _FRONTMATTER, "", ""
     niveis = {}  # nível do cabeçalho markdown → título vigente
     buffer, imagens_buffer, registros = [], [], []
 
     def salvar():
-        if not buffer:
+        if not buffer or secao == _FRONTMATTER:
             return
         # Junta preservando a quebra de linha: em listas (glossário, tabelas de
         # infrações) a linha é a única fronteira natural, e colapsá-las em um
@@ -228,7 +234,13 @@ def parse_md(texto):
             nivel, titulo = len(cabecalho.group(1)), cabecalho.group(2).strip()
             salvar(); buffer.clear(); imagens_buffer.clear()
 
-            if nivel <= 2:
+            if nivel == 1:
+                # O único H1 do documento é o título de capa (editora, data de
+                # vigência) — mantém a sentinela até o primeiro "##" real,
+                # senão o próprio título vira "secao" e libera o corpo do
+                # preâmbulo para ser indexado como se fosse conteúdo normativo.
+                secao = _FRONTMATTER
+            elif nivel == 2:
                 secao = titulo
                 niveis.clear()
                 m = re.match(r"Regra (\d+):", secao)
